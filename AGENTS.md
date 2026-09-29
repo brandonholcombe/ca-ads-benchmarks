@@ -18,3 +18,9 @@
   the same remote environment as GPU measurements. Do not claim packages are locked by a tag alone.
 - The textbook and animation project live outside this repository. Proposed course claims should
   cite reviewed run artifacts; benchmark results do not authorize changing narration or video timing.
+
+- For remaining-module GPU evidence, prefer `course-batch` and read docs/COURSE-BATCH.md.
+  Respect both process and total time budgets; do not automatically rerun completed cases.
+- The current model audit uses only freshly created in-memory pickle bytes. Never load a model
+  pickle supplied by another source as part of report review.
+- Document representative coverage and gaps; these benchmarks do not complete an unwritten module.

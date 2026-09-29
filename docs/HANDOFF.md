@@ -15,3 +15,12 @@ Prepared 2026-09-28 Pacific for the existing Akamai RTX PRO 6000 Blackwell host.
 Only this benchmark directory belongs in this repository. Do not upload the surrounding
 courseware, animation repository, local environments or historical videos. No license is assigned
 by this setup; keep the repository private until the owner decides distribution terms.
+
+## Additional module handoff — 2026-09-29
+
+Brandon reports running the first GPU tests. Reports remain to be returned and reviewed.
+The new [course batch](COURSE-BATCH.md) collects seven additional workloads at two bounded
+sizes and a model serialization audit. It preserves each finished result, skips larger versions
+of failed cases, defaults to a two-minute process timeout and fifteen-minute total budget, and
+omits the original three workloads unless selected explicitly. Run `git pull --ff-only` before
+using the new command. Return both batches in one uniquely named results archive.

@@ -3,7 +3,7 @@
 set -euo pipefail
 
 if [[ $# -lt 1 ]]; then
-  echo "Usage: $0 {preflight|run} --backend {cpu|gpu} [benchmark options]" >&2
+  echo "Usage: $0 {preflight|run|course-batch} --backend {cpu|gpu} [benchmark options]" >&2
   exit 2
 fi
 

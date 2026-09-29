@@ -21,3 +21,31 @@
 - `source_hash()` assumes execution from the documented source checkout because it reads adjacent `pyproject.toml` and `environments/run-in-container.sh`. A standalone installed wheel lacks those files and would fail before report creation. The README's clone or editable-source path satisfies this assumption; wheel execution is outside the reviewed path.
 
 This review supersedes the earlier three-finding draft. Those findings were repaired and verified by source inspection and CPU tests.
+
+## Remaining-module extension — 2026-09-29
+
+GPT-6 Sol high implemented the ML and data workload files in two bounded assignments. Each
+worker then reviewed the other implementation. A separate Sol high review checked the parent
+batch runner; the parent integrated and verified fixes. Subscription allowance usage was not
+measured. No paid API, new GPU allocation, or host changes were made.
+
+Review corrections accepted:
+- Handle a partial JSON report from a killed child per case; continue independent workloads.
+- Reject out-of-bounds data case sizes at the factory as well as the CLI.
+- Remove unsupported cuML 26.08 StandardScaler `output_type` constructor argument.
+- Use explicit `k-means++` initialization and three starts for both KMeans implementations.
+- Preserve JSON-safe error evidence for nonfinite model round-trip predictions.
+
+Validation: 44 unit/failure-path tests passed in isolated `.venv-course` with scikit-learn 1.9.1;
+all 14 default CPU workload/size combinations passed at 10,000 and 100,000 rows. Targeted PCA
+and KMeans reruns validate the final initialization/API-contract changes on CPU. A real child
+process timeout test confirms process termination and preserved logs. Mock tests cover GPU
+absence, constructor contracts, partial reports and budget exhaustion; none is GPU evidence.
+Container wrapper Bash syntax passes. The code's GPU paths require the exact published revision
+to run on the allocated Blackwell host. Prior first-suite GPU execution is user-reported only;
+its returned artifacts have not yet been reviewed.
+
+Scope: seven representative workloads, a same-runtime in-memory model round trip, per-case and
+total time budgets, and preserved run artifacts. See COURSE-BATCH.md for module mapping and
+explicit gaps. This does not validate distributed Dask scaling, durable deployment, forecast
+models, or every future textbook example.

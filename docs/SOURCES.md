@@ -18,3 +18,13 @@ Checked 2026-09-28. These are primary vendor sources for the Blackwell container
 | [Akamai RTX PRO 6000 Blackwell onboarding](https://techdocs.akamai.com/cloud-computing/docs/nvidia-rtx-pro-6000-blackwell-gpu-onboarding) | Limited availability, existing instance onboarding, optional cloud-init CUDA 12.8 example, and owner/operator setup context. |
 
 Pending evidence from the existing authorized GPU host: `uname -m`, `/etc/os-release`, `nvidia-smi` GPU/driver output, `docker version`, image digest or ID after pull, NumPy/pandas/CuPy/cuDF import versions, GPU preflight JSON, correctness results, and timed benchmark outputs. No GPU deployment or benchmark execution has occurred in this workspace.
+
+## Remaining-module API checks (2026-09-29)
+
+The per-workload references and numerical comparison contracts are in
+[ML-WORKLOADS.md](ML-WORKLOADS.md) and [DATA-WORKLOADS.md](DATA-WORKLOADS.md).
+Release-specific review used NVIDIA's [cuML 26.08 StandardScaler](https://docs.nvidia.com/cuml/26.08/api/generated/cuml.preprocessing.StandardScaler/)
+and [KMeans](https://docs.nvidia.com/cuml/26.08/api/generated/cuml.cluster.KMeans/) pages to correct
+constructor and initialization assumptions. The [RAPIDS cuGraph container guidance](https://docs.rapids.ai/api/cugraph/legacy/installation/getting_cugraph/)
+describes RAPIDS containers as including the libraries and supporting packages; imported versions
+and runtime behavior still need verification in the actual recorded image.

@@ -309,18 +309,22 @@ def _write_reports(directory: Path, report: dict) -> None:
         f.write("\n".join(lines))
 
 
-def run(backend: str, rows: list[int], repeat: int, warmup: int, seed: int, output: Path) -> tuple[Path, dict]:
+def run(backend: str, rows: list[int], repeat: int, warmup: int, seed: int, output: Path, workload: str | None = None) -> tuple[Path, dict]:
+    from .registry import ALL_NAMES, make_selected, dependency_versions
+    if workload is not None and workload not in ALL_NAMES:
+        raise ValueError(f"Unknown workload: {workload}")
+    names = (workload,) if workload else WORKLOAD_NAMES
     output.mkdir(parents=True, exist_ok=True)
     run_dir = output / (datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "_" + uuid4().hex[:12])
     run_dir.mkdir(exist_ok=False)
     report = {"schema_version": 1, "kind": "run", "status": "error",
-              "metadata": base_metadata(backend), "parameters": {"rows": rows, "repeat": repeat, "warmup": warmup, "seed": seed},
+              "metadata": base_metadata(backend), "parameters": {"rows": rows, "repeat": repeat, "warmup": warmup, "seed": seed, "workloads": list(names)},
               "timing_method": {"unit": "milliseconds", "clock": "time.perf_counter_ns",
                                 "gpu_sync": "selected CUDA device before and after each timing",
                                 "order": "CPU first on even repeats, GPU first on odd repeats",
                                 "warmup": "untimed", "allocator_reuse": "possible after warmup"},
               "results": [{"rows": size, "name": name, "status": "not_run"}
-                          for size in rows for name in WORKLOAD_NAMES]}
+                          for size in rows for name in names]}
     planned = {(item["rows"], item["name"]): item for item in report["results"]}
     active = None
     phase = "preflight"
@@ -330,15 +334,24 @@ def run(backend: str, rows: list[int], repeat: int, warmup: int, seed: int, outp
             cp, cudf = gpu_modules()
             report["metadata"]["gpu"] = gpu_metadata(cp, cudf)
         report["fixtures"] = fixture_checks(cudf)
+        if workload is not None:
+            report["metadata"]["workload_dependencies"] = dependency_versions(workload, backend == "gpu")
         for size in rows:
             phase = "input_generation"
             active = {"rows": size, "workload": None}
-            for case in make_cases(size, seed, (cp, cudf) if cp is not None else None):
+            gpu = (cp, cudf) if cp is not None else None
+            cases = [make_selected(workload, size, seed, gpu)] if workload else make_cases(size, seed, gpu)
+            for case in cases:
                 entry = planned[(size, case.name)]
                 active = {"rows": size, "workload": case.name}
                 entry["status"] = "running"
                 phase = "reference"
                 reference = case.cpu(case.host_input)
+                if hasattr(case, "audit"):
+                    phase = "artifact_audit"
+                    entry["audit"] = case.audit()
+                    if not entry["audit"].get("passed"):
+                        raise BenchmarkError("Untimed model round-trip audit failed")
                 phase = "measurement"
                 result = _measure_case(case, reference, backend, repeat, warmup, cp)
                 entry.update(result)

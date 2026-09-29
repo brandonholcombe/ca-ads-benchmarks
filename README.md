@@ -3,8 +3,16 @@
 Portable correctness checks and measured CPU-versus-GPU experiments for the NCA-ADS course.
 The first target is an existing Akamai Linux host with an NVIDIA RTX PRO 6000 Blackwell GPU.
 This repository contains synthetic data generators and benchmark code only; it does not
-provision cloud resources or change host drivers. **No Blackwell measurements have been
-collected yet.** Local CPU validation cannot establish GPU correctness or speedup.
+provision cloud resources or change host drivers. **Brandon reports running the first GPU tests; returned reports are awaiting review.**
+Local CPU validation cannot establish GPU correctness or speedup.
+
+## Remaining modules: run the bounded course batch
+
+See [the course batch handoff](docs/COURSE-BATCH.md) for the single command, module coverage,
+time limits and result archive. It adds seven workloads for feature preparation, EDA, machine
+learning, time series and graph analysis, plus an untimed model serialization check. The batch
+skips the original three workloads by default and saves each finished case independently.
+Default limits: two minutes per case, fifteen minutes total; no automatic cloud shutdown.
 
 ## What the first suite measures
 
@@ -52,8 +60,8 @@ ADS_GPU_ID=0 bash environments/run-in-container.sh run \
 
 Each run creates a new directory. Preflight refuses to replace an existing file; use a new
 filename for each attempt. The current cap is five million rows per size, with 3–100 timed
-repeats and 1–20 warmups. Start with one GPU. Multi-GPU scaling and model-training benchmarks
-are future extensions, not claims made by this version.
+repeats and 1–20 warmups. Start with one GPU. Multi-GPU scaling remains outside this suite. The new course batch has separately bounded
+model-training cases (maximum 100000 rows); do not apply the original five-million-row sizes to them.
 
 The wrapper records the local image ID and available repository digests, then executes that
 exact local image ID. It uses your UID/GID and mounts only this repository. To repeat a captured
@@ -119,8 +127,8 @@ python -m venv .venv
 .venv/bin/python -m nca_ads_bench run --backend cpu --rows 10000 100000 --output results
 ```
 
-Do not install GPU packages into the course's Manim environment. CPU tests require NumPy and
-pandas only; the GPU backend loads CuPy and cuDF only when explicitly requested. The remote
+Do not install GPU packages into the course's Manim environment. The original workloads require NumPy and pandas only; install `.[course]` for the expanded
+CPU test collection and ML baselines; the GPU backend loads CuPy and cuDF only when explicitly requested. The remote
 container runs directly from source without an editable install. Full CLI help is available
 with `python -m nca_ads_bench --help` and each subcommand's `--help`.
 

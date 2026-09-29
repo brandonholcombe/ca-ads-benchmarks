@@ -4,10 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nca-ads-bench"
-version = "0.1.0"
+version = "0.2.0"
 description = "Reproducible CPU and GPU examples for NCA-ADS"
 requires-python = ">=3.11"
 dependencies = ["numpy>=1.24", "pandas>=2.0"]
+
+[project.optional-dependencies]
+course = ["scikit-learn>=1.4"]
 
 [project.scripts]
 nca-ads-bench = "nca_ads_bench.cli:main"
